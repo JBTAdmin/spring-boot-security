@@ -1,0 +1,54 @@
+# Application Config
+server:
+  port : 8081
+
+security:
+  basic.enable: false
+
+spring:
+  application:
+    name: JBT-Beginner-Microservice
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:testdb;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    initialization-mode: always
+  jpa:
+    show-sql: true
+    hibernate.ddl-auto: update
+    properties:
+      hibernate.dialect: org.hibernate.dialect.H2Dialect
+  queries:
+    users-query: select name, password, active from user where name=?
+    roles-query: select u.name, r.role from user u inner join user_role ur on(u.user_id=ur.user_id) inner join role r on(ur.role_id=r.role_id) where u.name=?
+  h2:
+    console:
+      enabled: true   # Enabling H2 Console
+      path: /h2       # Custom H2 Console URL
+  logging:
+    level:
+      org.springframework.security: DEBUG
+  ldap:
+     # Spring LDAP
+     urls: ldap://localhost:389/
+     base: dc=springframework,dc=org
+     username: uid=admin
+     password: secret
+
+
+
+# Eureka Config
+eureka:
+  client:
+    eureka-server-port: 8761
+  instance:
+    health-check-url-path: /manage/health
+    status-page-url-path: /manage/info
+
+management:
+  endpoints:
+    web:
+      base-path: /manage
+
+appsecurity.method: OAuth
