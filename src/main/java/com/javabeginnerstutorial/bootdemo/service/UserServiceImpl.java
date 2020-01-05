@@ -5,14 +5,21 @@ import com.javabeginnerstutorial.bootdemo.model.UserInfo;
 import com.javabeginnerstutorial.bootdemo.repository.RoleRepository;
 import com.javabeginnerstutorial.bootdemo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
-@Service
-public class UserServiceImpl implements UserService {
+@Service("userService")
+public class UserServiceImpl implements UserDetailsService, UserService {
 
     private UserRepository userRepository;
     private RoleRepository roleRepository;
@@ -42,5 +49,21 @@ public class UserServiceImpl implements UserService {
         Role userRole = roleRepository.findByRole("ADMIN");
         userInfo.setRoles(new HashSet<Role>(Arrays.asList(userRole)));
         return userRepository.save(userInfo);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
+        UserInfo userInfo = userRepository.findByName(name);
+        if(userInfo == null){
+            throw new UsernameNotFoundException("Invalid username or password.");
+        }
+        return new User(userInfo.getName(), userInfo.getPassword(), getAuthority(userInfo.getRoles().stream().collect(Collectors.toList())));
+    }
+
+    private List getAuthority(List<Role> userRole) {
+        List<SimpleGrantedAuthority> grantedAuthorities = userRole.stream()
+        .map(s -> new SimpleGrantedAuthority("ROLE_"+s.getRole()))
+        .collect(Collectors.toList());
+        return grantedAuthorities;
     }
 }

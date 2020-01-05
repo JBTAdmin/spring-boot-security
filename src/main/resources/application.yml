@@ -1,6 +1,6 @@
 # Application Config
 server:
-  port : 8081
+  port: 8080
 
 security:
   basic.enable: false
@@ -26,17 +26,24 @@ spring:
     console:
       enabled: true   # Enabling H2 Console
       path: /h2       # Custom H2 Console URL
-  logging:
-    level:
-      org.springframework.security: DEBUG
   ldap:
-     # Spring LDAP
-     urls: ldap://localhost:389/
-     base: dc=springframework,dc=org
-     username: uid=admin
-     password: secret
-
-
+    # Spring LDAP
+    urls: ldap://localhost:389/
+    base: dc=springframework,dc=org
+    username: uid=admin
+    password: secret
+  security:
+    oauth2:
+      client:
+        clientId: MyOauth2Demo
+        clientSecret: secret
+      resource:
+        user-info-uri: http://localhost:8080/user
+        token-info-uri: http://localhost:8080/oauth/check_token
+        preferTokenInfo: true
+        filter-order: 3
+    basic:
+      enabled: false
 
 # Eureka Config
 eureka:
@@ -51,4 +58,8 @@ management:
     web:
       base-path: /manage
 
-appsecurity.method: OAuth
+appsecurity.method: LDAP
+
+logging:
+  level:
+    org.springframework.security: DEBUG
