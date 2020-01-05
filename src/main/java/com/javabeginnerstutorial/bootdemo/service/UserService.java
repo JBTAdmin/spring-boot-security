@@ -1,11 +1,11 @@
 package com.javabeginnerstutorial.bootdemo.service;
 
 
-import com.javabeginnerstutorial.bootdemo.model.User;
+import com.javabeginnerstutorial.bootdemo.model.UserInfo;
 
 public interface UserService {
 
-    public User findUserByEmail(String email) ;
-    public User findUserByName(String name) ;
-    public User saveUser(User user);
+    public UserInfo findUserByEmail(String email) ;
+    public UserInfo findUserByName(String name) ;
+    public UserInfo saveUser(UserInfo userInfo);
 }

@@ -1,7 +1,7 @@
 package com.javabeginnerstutorial.bootdemo.service;
 
 import com.javabeginnerstutorial.bootdemo.model.Role;
-import com.javabeginnerstutorial.bootdemo.model.User;
+import com.javabeginnerstutorial.bootdemo.model.UserInfo;
 import com.javabeginnerstutorial.bootdemo.repository.RoleRepository;
 import com.javabeginnerstutorial.bootdemo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,21 +26,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUserByEmail(String email) {
+    public UserInfo findUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
     @Override
-    public User findUserByName(String name) {
+    public UserInfo findUserByName(String name) {
         return userRepository.findByName(name);
     }
 
     @Override
-    public User saveUser(User user) {
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        user.setActive(1);
+    public UserInfo saveUser(UserInfo userInfo) {
+        userInfo.setPassword(bCryptPasswordEncoder.encode(userInfo.getPassword()));
+        userInfo.setActive(1);
         Role userRole = roleRepository.findByRole("ADMIN");
-        user.setRoles(new HashSet<Role>(Arrays.asList(userRole)));
-        return userRepository.save(user);
+        userInfo.setRoles(new HashSet<Role>(Arrays.asList(userRole)));
+        return userRepository.save(userInfo);
     }
 }

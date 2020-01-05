@@ -1,12 +1,12 @@
 package com.javabeginnerstutorial.bootdemo.repository;
 
 
-import com.javabeginnerstutorial.bootdemo.model.User;
+import com.javabeginnerstutorial.bootdemo.model.UserInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
-    public User findByEmail(String email);
-    public User findByName (String name);
+public interface UserRepository extends JpaRepository<UserInfo, Integer> {
+    public UserInfo findByEmail(String email);
+    public UserInfo findByName (String name);
 }

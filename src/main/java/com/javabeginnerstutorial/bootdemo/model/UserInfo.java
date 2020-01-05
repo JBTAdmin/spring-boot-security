@@ -18,7 +18,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "USER")
-public class User {
+public class UserInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -44,10 +44,10 @@ public class User {
     @JoinTable(name = "USER_ROLE", joinColumns = @JoinColumn(name = "USER_ID"), inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
     private Set<Role> roles;
 
-    public User() {
+    public UserInfo() {
     }
 
-    public User(int id, @Email(message = "*Please provide a valid Email") @NotEmpty(message = "*Please provide an email") String email, @Length(min = 5, message = "*Your password must have at least 5 characters") @NotEmpty(message = "*Please provide your password") String password, @NotEmpty(message = "*Please provide your name") String name, @NotEmpty(message = "*Please provide your last name") String lastName, int active, Set<Role> roles) {
+    public UserInfo(int id, @Email(message = "*Please provide a valid Email") @NotEmpty(message = "*Please provide an email") String email, @Length(min = 5, message = "*Your password must have at least 5 characters") @NotEmpty(message = "*Please provide your password") String password, @NotEmpty(message = "*Please provide your name") String name, @NotEmpty(message = "*Please provide your last name") String lastName, int active, Set<Role> roles) {
         this.id = id;
         this.email = email;
         this.password = password;
