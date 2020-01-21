@@ -14,21 +14,27 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 
 @Configuration
-@EnableOAuth2Sso
-@Order(7)
 @ConditionalOnProperty(name = "appsecurity.method", havingValue = "OAuth2")
 public class OAuth2SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserServiceImpl userDetailsService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public OAuth2SecurityConfiguration(UserServiceImpl userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public OAuth2SecurityConfiguration(UserServiceImpl userDetailsService) {
         this.userDetailsService = userDetailsService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
+    @Autowired
+    private OAuth2LoginAuthenticationProvider oAuth2LoginAuthenticationProvider;
+
+    @Override
+    protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService);
+        auth.authenticationProvider(oAuth2LoginAuthenticationProvider);
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -40,21 +46,15 @@ public class OAuth2SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(bCryptPasswordEncoder);
-        provider.setUserDetailsService(userDetailsService);
-        return provider;
-    }
-
     @Override
-    @Bean
-    public AuthenticationManager authenticationManager() throws Exception {
+    public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(authenticationProvider());
+    @Bean
+    public JwtAccessTokenConverter jwtAccessTokenConverter() {
+        final JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
+        jwtAccessTokenConverter.setSigningKey("qeFz6P80cloLtue19ecVPQWVJ1UUA1oE98k");
+        return jwtAccessTokenConverter;
     }
 }

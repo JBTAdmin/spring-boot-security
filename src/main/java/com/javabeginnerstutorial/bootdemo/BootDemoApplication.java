@@ -7,7 +7,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 
 @SpringBootApplication
 @EnableDiscoveryClient(autoRegister = false)
-@EnableWebSecurity
 public class BootDemoApplication {
 
 	public static void main(String[] args) {
