@@ -19,6 +19,7 @@ spring:
     hibernate.ddl-auto: update
     properties:
       hibernate.dialect: org.hibernate.dialect.H2Dialect
+
   queries:
     users-query: select name, password, active from user where name=?
     roles-query: select u.name, r.role from user u inner join user_role ur on(u.user_id=ur.user_id) inner join role r on(ur.role_id=r.role_id) where u.name=?
@@ -32,8 +33,6 @@ spring:
     base: dc=springframework,dc=org
     username: uid=admin
     password: secret
-  jwt:
-    secret: jbt
   security:
     oauth2:
       client:
@@ -48,6 +47,9 @@ spring:
         filter-order: 3
     basic:
       enabled: false
+jwt:
+  secret: jbt
+  validityInMs: 3600000 #1h
 
 # Eureka Config
 eureka:

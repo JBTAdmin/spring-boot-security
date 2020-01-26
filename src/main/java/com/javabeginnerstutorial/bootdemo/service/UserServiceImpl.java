@@ -34,12 +34,12 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
     @Override
     public UserInfo findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Mail Id " + email + "not found"));
     }
 
     @Override
-    public UserInfo findUserByName(String name) {
-        return userRepository.findByName(name);
+    public UserInfo findUserByName(String username) {
+        return userRepository.findByName(username).orElseThrow(() -> new UsernameNotFoundException("Username " + username + "not found"));
     }
 
     @Override
@@ -52,11 +52,8 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
-        UserInfo userInfo = userRepository.findByName(name);
-        if(userInfo == null){
-            throw new UsernameNotFoundException("Invalid username or password.");
-        }
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserInfo userInfo = userRepository.findByName(username).orElseThrow(() -> new UsernameNotFoundException("Username " + username + "not found"));
         return new User(userInfo.getName(), userInfo.getPassword(), getAuthority(userInfo.getRoles().stream().collect(Collectors.toList())));
     }
 

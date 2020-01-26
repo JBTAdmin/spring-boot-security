@@ -1,41 +1,23 @@
 package com.javabeginnerstutorial.bootdemo.config.jwt;
 
-import com.javabeginnerstutorial.bootdemo.filter.JwtRequestFilter;
-import com.javabeginnerstutorial.bootdemo.service.UserServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-@ConditionalOnProperty(name = "appsecurity.method", havingValue = "JWT")
+@ConditionalOnProperty(name="appsecurity.method", havingValue = "JWT")
 public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private JwtAuthenticationEntry jwtAuthenticationEntryPoint;
 
-    @Autowired
-    private UserServiceImpl userService;
+    private final TokenProvider tokenProvider;
 
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder);
+    public JwtSecurityConfiguration(TokenProvider tokenProvider) {
+        this.tokenProvider = tokenProvider;
     }
 
     @Bean
@@ -45,16 +27,24 @@ public class JwtSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    protected void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf().disable()
-                .authorizeRequests().antMatchers("/generate-token").permitAll().
-                anyRequest().authenticated()
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .httpBasic().disable()
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilterBefore(jwtRequestFilter,UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .and().sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().formLogin().and().httpBasic().disable();
+                .authorizeRequests()
+                .antMatchers("/auth/givemetoken").permitAll()
+                .antMatchers(HttpMethod.GET, "/person/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/person/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+                .and()
+                .apply(new TokenSecurityConfigurer(tokenProvider));
     }
 
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring()
+                .antMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**", "/h2/**");
+    }
 }
